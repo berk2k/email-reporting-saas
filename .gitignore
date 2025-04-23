@@ -1,0 +1,4 @@
+.env
+plan.txt
+node_modules/
+src/config
