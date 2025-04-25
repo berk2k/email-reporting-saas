@@ -11,14 +11,14 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:3000/api', // Make sure this matches your base route
+      url: 'http://localhost:3000/api',
     },
   ],
 };
 
 const options = {
   swaggerDefinition,
-  apis: ['./src/routes/*.js'], // Ensure the paths are correct
+  apis: ['./src/routes/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
