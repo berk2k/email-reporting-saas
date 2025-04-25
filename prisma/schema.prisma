@@ -19,6 +19,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())  // Set default value for new rows
+  reportSettings ReportSettings[]  // A user can have multiple report settings
 }
 
 model Sales {
@@ -29,5 +30,20 @@ model Sales {
   timestamp     DateTime @default(now())
   paymentMethod String
 }
+
+model ReportSettings {
+  id            Int      @id @default(autoincrement())
+  userId        Int      // Foreign key reference to the User table
+  reportType    String   // e.g., "sales", "inventory"
+  frequency     String   // e.g., "daily", "weekly", "monthly"
+  lastGenerated DateTime @default(now()) // When the report was last generated
+  
+  user          User     @relation(fields: [userId], references: [id]) 
+  @@unique([userId, reportType, frequency])
+}
+
+
+
+
 
 

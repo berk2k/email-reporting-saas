@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/config.js';
 
 
-import prisma from '../models/userModel.js'; // Now this is the full Prisma client
+import prisma from '../models/prisma.js'; // Now this is the full Prisma client
 
 
 

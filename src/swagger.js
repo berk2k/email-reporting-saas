@@ -9,6 +9,20 @@ const swaggerDefinition = {
     version: '1.0.0',
     description: 'API documentation for the SaaS project, including user registration and login.',
   },
+  components: {
+    securitySchemes: {
+      BearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
+  },
+  security: [
+    {
+      BearerAuth: [],
+    },
+  ],
   servers: [
     {
       url: 'http://localhost:3000/api',
