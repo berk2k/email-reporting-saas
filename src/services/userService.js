@@ -1,14 +1,13 @@
 // src/services/userService.js
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { config } from '../config/config.js';
 
-import dotenv from 'dotenv';
-// src/services/userService.js
+
 import prisma from '../models/userModel.js'; // Now this is the full Prisma client
 
 
-// Load environment variables from .env file
-dotenv.config();
+
 
 // Register user and hash password
 export const registerUserService = async (email, password) => {
@@ -45,6 +44,6 @@ export const loginUserService = async (email, password) => {
     }
 
     // Generate JWT token using secret from environment variable
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id }, config.jwtSecret, { expiresIn: '1h' });
     return token;  // Return the JWT token
 };
