@@ -21,4 +21,13 @@ model User {
   updatedAt DateTime @default(now())  // Set default value for new rows
 }
 
+model Sales {
+  id            Int      @id @default(autoincrement())
+  item          String
+  quantity      Int
+  total         Float
+  timestamp     DateTime @default(now())
+  paymentMethod String
+}
+
 
