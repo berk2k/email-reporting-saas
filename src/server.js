@@ -1,18 +1,18 @@
 import express from 'express';
 import cors from 'cors';
-import { swaggerSpec, swaggerUi } from './swagger.js';  // Swagger setup
-import reportSettingRoutes from './routes/reportSettingRoutes.js'; // Your report settings routes
-import authRoutes from './routes/authRoutes.js';  // Your authentication routes
+import { swaggerSpec, swaggerUi } from './swagger.js';  
+import reportSettingRoutes from './routes/reportSettingRoutes.js'; 
+import authRoutes from './routes/authRoutes.js';  
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 
-// First, set up Swagger UI
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Then, set up your application routes
+
 app.use('/api/auth', authRoutes);
 app.use('/api/settings', reportSettingRoutes);
 
