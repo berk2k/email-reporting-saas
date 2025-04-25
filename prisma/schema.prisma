@@ -18,4 +18,7 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())  // Set default value for new rows
 }
+
+
