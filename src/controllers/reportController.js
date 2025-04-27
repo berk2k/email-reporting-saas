@@ -62,21 +62,20 @@ export const getReport = async (req, res) => {
     const reportContent = JSON.parse(report.content);
 
     res.status(200).json({
-      id: report.id,
       createdAt: report.createdAt,
-      reportSettings: report.reportSettings,
       content: reportContent,
     });
   } catch (error) {
     // Daha detaylı hata mesajı ile loglama
     console.error('Rapor getirme hatası:', error.message);
-    
+
+    // Kullanıcıya dostane mesaj döndürme
     if (error.message.includes('Rapor bulunamadı')) {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({ message: 'Bu rapora erişim izniniz yok veya rapor bulunamadı.' });
     }
 
     // Genel hata mesajı
-    res.status(500).json({ message: 'Rapor getirilirken bir hata oluştu' });
+    res.status(500).json({ message: 'Bir şeyler yanlış gitti, lütfen tekrar deneyin.' });
   }
 };
 

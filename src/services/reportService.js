@@ -175,13 +175,11 @@ export const getUserReports = async (userId) => {
 
 export const getReportById = async (reportId, req) => {
   try {
-
-
     const report = await prisma.report.findFirst({
       where: {
         id: reportId,
         reportSettings: {
-          userId: req.user.userId,  // Burada doğru ilişki kontrolü yapılmalı
+          userId: req.user.userId,  // Kullanıcının erişim izni kontrolü
         },
       },
       include: {
@@ -190,9 +188,9 @@ export const getReportById = async (reportId, req) => {
     });
 
     if (!report) {
-      throw new Error(`Rapor bulunamadı`);
+      throw new Error('Rapor bulunamadı'); // Hata mesajı, sadece backend için
     }
-    
+
     return report;
   } catch (error) {
     console.error('Rapor getirme hatası:', error.message);
