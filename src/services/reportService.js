@@ -1,0 +1,226 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { PrismaClient } from '@prisma/client';
+import * as reportService from '../services/reportService.js';
+import { Console } from 'console';
+
+const prisma = new PrismaClient();
+
+// __dirname için çözüm (ES6 modül kullanımı)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Belirli bir rapor ayarına göre rapor oluşturur
+export const generateReport = async (reportSettingsId) => {
+  try {
+    // Önce rapor ayarlarını bulalım
+    const reportSettings = await prisma.reportSettings.findUnique({
+      where: { id: reportSettingsId },
+      include: { user: true },
+    });
+
+    if (!reportSettings) {
+      throw new Error('Rapor ayarları bulunamadı');
+    }
+
+    // Rapor tipine göre ilgili metodu çağıralım
+    let reportContent;
+    switch (reportSettings.reportType) {
+      case 'sales':
+        reportContent = await reportService.generateSalesReport(reportSettings);
+        break;
+      default:
+        throw new Error('Desteklenmeyen rapor tipi');
+    }
+
+    // Raporu veritabanına kaydedelim
+    const report = await prisma.report.create({
+      data: {
+        reportSettingsId: reportSettings.id,
+        content: JSON.stringify(reportContent),
+        sent: false,
+      },
+    });
+
+    // JSON dosyasını kaydetme
+    const reportDirectory = path.join(__dirname, '..', 'reports');  // 'reports' klasörü içinde kaydedelim
+    if (!fs.existsSync(reportDirectory)) {
+      fs.mkdirSync(reportDirectory);  // Eğer klasör yoksa oluşturuyoruz
+    }
+
+    const reportFileName = `${reportSettings.userId}-${reportSettings.reportType}-${new Date().toISOString()}.json`;
+    const reportFilePath = path.join(reportDirectory, reportFileName);
+
+    fs.writeFileSync(reportFilePath, JSON.stringify(reportContent, null, 2));  // JSON içeriğini dosyaya yazıyoruz
+
+    console.log(`Rapor dosyası kaydedildi: ${reportFilePath}`);
+
+    // Son üretilme tarihini güncelleyelim
+    await prisma.reportSettings.update({
+      where: { id: reportSettings.id },
+      data: { lastGenerated: new Date() },
+    });
+
+    return report;
+  } catch (error) {
+    console.error('Rapor oluşturma hatası:', error);
+    throw error;
+  }
+};
+
+// Satış raporu oluşturan yardımcı metod
+export const generateSalesReport = async (reportSettings) => {
+  // Frequency değerine göre tarih aralığını belirleyelim
+  const endDate = new Date();
+  let startDate = new Date();
+
+  switch (reportSettings.frequency) {
+    case 'daily':
+      startDate.setDate(endDate.getDate() - 1);
+      break;
+    case 'weekly':
+      startDate.setDate(endDate.getDate() - 7);
+      break;
+    case 'monthly':
+      startDate.setMonth(endDate.getMonth() - 1);
+      break;
+    default:
+      startDate.setDate(endDate.getDate() - 1); // Varsayılan olarak günlük
+  }
+
+  // Satış verilerini çekelim
+  const salesData = await prisma.sales.findMany({
+    where: {
+      timestamp: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+  });
+
+  // Rapor özeti için bazı hesaplamalar yapalım
+  const totalSales = salesData.reduce((sum, sale) => sum + sale.total, 0);
+  const itemCount = salesData.length;
+
+  // Ödeme metotlarına göre gruplama yapalım
+  const paymentMethods = {};
+  salesData.forEach((sale) => {
+    if (!paymentMethods[sale.paymentMethod]) {
+      paymentMethods[sale.paymentMethod] = 0;
+    }
+    paymentMethods[sale.paymentMethod] += sale.total;
+  });
+
+  // En çok satılan ürünleri bulalım
+  const itemSales = {};
+  salesData.forEach((sale) => {
+    if (!itemSales[sale.item]) {
+      itemSales[sale.item] = { quantity: 0, total: 0 };
+    }
+    itemSales[sale.item].quantity += sale.quantity;
+    itemSales[sale.item].total += sale.total;
+  });
+
+  // Sonuçları döndürelim
+  return {
+    period: {
+      startDate,
+      endDate,
+    },
+    summary: {
+      totalSales,
+      itemCount,
+      averageSale: itemCount > 0 ? totalSales / itemCount : 0,
+    },
+    paymentMethods,
+    topItems: Object.entries(itemSales)
+      .map(([item, data]) => ({
+        item,
+        quantity: data.quantity,
+        total: data.total,
+      }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5),
+    allSales: salesData,
+  };
+};
+
+// Kullanıcının tüm raporlarını getirir
+export const getUserReports = async (userId) => {
+  return prisma.report.findMany({
+    where: {
+      reportSettings: {
+        userId,
+      },
+    },
+    include: {
+      reportSettings: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+};
+
+// Belirli bir raporu ID'ye göre getirir
+
+export const getReportById = async (reportId, userId) => {
+    try {
+      const report = await prisma.report.findFirst({
+        where: {
+          id: reportId,
+          reportSettings: {
+            userId,
+          },
+        },
+        include: {
+          reportSettings: true,
+        },
+      });
+  
+      if (!report) {
+        throw new Error('Rapor bulunamadı');
+      }
+  
+      const { reportSettings, content } = report;
+      const reportContent = JSON.parse(content);
+  
+      // Kullanıcı ve rapor tipi bilgilerini kontrol et
+      if (!reportSettings?.userId || !reportSettings?.reportType) {
+        throw new Error('Rapor ayarlarında eksik bilgiler var');
+      }
+  
+      // JSON içerik dosyasına kaydedelim
+      const reportDirectory = path.join(__dirname, '..', 'report_files', 'reports');
+      
+      if (!fs.existsSync(reportDirectory)) {
+        fs.mkdirSync(reportDirectory, { recursive: true });
+      }
+  
+      const reportFileName = `${reportSettings.userId}-${reportSettings.reportType}.json`;
+      const reportFilePath = path.join(reportDirectory, reportFileName);
+  
+      // Dosya zaten varsa, içeriği güncelle
+      let existingContent = [];
+      if (fs.existsSync(reportFilePath)) {
+        const existingData = fs.readFileSync(reportFilePath, 'utf-8');
+        existingContent = JSON.parse(existingData);
+        // Var olan içeriğe yeni veriyi eklemek
+        existingContent.push(reportContent);
+      } else {
+        // Dosya yoksa yeni içerik oluştur
+        existingContent = [reportContent];
+      }
+  
+      // Yeni içerik dosyaya kaydediliyor
+      fs.writeFileSync(reportFilePath, JSON.stringify(existingContent, null, 2));
+  
+      console.log(`Rapor dosyası kaydedildi: ${reportFilePath}`);
+  
+      return report;
+    } catch (error) {
+      console.error('Rapor getirme hatası:', error);
+      throw error;
+    }
+  };
+  

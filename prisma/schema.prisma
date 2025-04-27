@@ -33,15 +33,26 @@ model Sales {
 
 model ReportSettings {
   id            Int      @id @default(autoincrement())
-  userId        Int      // Foreign key reference to the User table
+  userId        Int      
   reportType    String   // e.g., "sales", "inventory"
   frequency     String   // e.g., "daily", "weekly", "monthly"
-  lastGenerated DateTime @default(now()) // When the report was last generated
+  lastGenerated DateTime @default(now())
   
-  user          User     @relation(fields: [userId], references: [id]) 
+  user          User     @relation(fields: [userId], references: [id])
+  reports       Report[] // Yeni ilişki ekliyoruz
+  
   @@unique([userId, reportType, frequency])
 }
 
+model Report {
+  id            Int      @id @default(autoincrement())
+  reportSettingsId Int   // Hangi ayara göre oluşturulduğu
+  createdAt     DateTime @default(now())
+  content       String   @db.Text // JSON formatında rapor içeriği
+  sent          Boolean  @default(false) // E-posta gönderildi mi?
+  
+  reportSettings ReportSettings @relation(fields: [reportSettingsId], references: [id])
+}
 
 
 
