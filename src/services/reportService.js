@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
 import * as reportService from '../services/reportService.js';
-import { Console } from 'console';
+
 
 const prisma = new PrismaClient();
 
@@ -12,61 +12,63 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Belirli bir rapor ayarına göre rapor oluşturur
 export const generateReport = async (reportSettingsId) => {
-  try {
-    // Önce rapor ayarlarını bulalım
-    const reportSettings = await prisma.reportSettings.findUnique({
-      where: { id: reportSettingsId },
-      include: { user: true },
-    });
-
-    if (!reportSettings) {
-      throw new Error('Rapor ayarları bulunamadı');
+    try {
+      const reportSettings = await prisma.reportSettings.findUnique({
+        where: { id: reportSettingsId },
+        include: { user: true },
+      });
+  
+      if (!reportSettings) {
+        throw new Error('Rapor ayarları bulunamadı');
+      }
+  
+      let reportContent;
+      switch (reportSettings.reportType) {
+        case 'sales':
+          reportContent = await reportService.generateSalesReport(reportSettings);
+          break;
+        default:
+          throw new Error('Desteklenmeyen rapor tipi');
+      }
+  
+      const report = await prisma.report.create({
+        data: {
+          reportSettingsId: reportSettings.id,
+          content: JSON.stringify(reportContent),
+          sent: false,
+        },
+      });
+  
+      // JSON dosyasını kaydetme
+      const reportDirectory = path.join(__dirname, '..', 'report_files', 'reports');
+      fs.mkdirSync(reportDirectory, { recursive: true });
+  
+      const reportFileName = `${reportSettings.userId}-${reportSettings.reportType}.json`;
+      const reportFilePath = path.join(reportDirectory, reportFileName);
+  
+      let existingContent = [];
+      if (fs.existsSync(reportFilePath)) {
+        const existingData = fs.readFileSync(reportFilePath, 'utf-8');
+        existingContent = JSON.parse(existingData);
+      }
+      existingContent.push(reportContent);
+  
+      fs.writeFileSync(reportFilePath, JSON.stringify(existingContent, null, 2));
+  
+      console.log(`Rapor dosyası kaydedildi: ${reportFilePath}`);
+  
+      await prisma.reportSettings.update({
+        where: { id: reportSettings.id },
+        data: { lastGenerated: new Date() },
+      });
+  
+      return report;
+    } catch (error) {
+      console.error('Rapor oluşturma hatası:', error);
+      throw error;
     }
-
-    // Rapor tipine göre ilgili metodu çağıralım
-    let reportContent;
-    switch (reportSettings.reportType) {
-      case 'sales':
-        reportContent = await reportService.generateSalesReport(reportSettings);
-        break;
-      default:
-        throw new Error('Desteklenmeyen rapor tipi');
-    }
-
-    // Raporu veritabanına kaydedelim
-    const report = await prisma.report.create({
-      data: {
-        reportSettingsId: reportSettings.id,
-        content: JSON.stringify(reportContent),
-        sent: false,
-      },
-    });
-
-    // JSON dosyasını kaydetme
-    const reportDirectory = path.join(__dirname, '..', 'reports');  // 'reports' klasörü içinde kaydedelim
-    if (!fs.existsSync(reportDirectory)) {
-      fs.mkdirSync(reportDirectory);  // Eğer klasör yoksa oluşturuyoruz
-    }
-
-    const reportFileName = `${reportSettings.userId}-${reportSettings.reportType}-${new Date().toISOString()}.json`;
-    const reportFilePath = path.join(reportDirectory, reportFileName);
-
-    fs.writeFileSync(reportFilePath, JSON.stringify(reportContent, null, 2));  // JSON içeriğini dosyaya yazıyoruz
-
-    console.log(`Rapor dosyası kaydedildi: ${reportFilePath}`);
-
-    // Son üretilme tarihini güncelleyelim
-    await prisma.reportSettings.update({
-      where: { id: reportSettings.id },
-      data: { lastGenerated: new Date() },
-    });
-
-    return report;
-  } catch (error) {
-    console.error('Rapor oluşturma hatası:', error);
-    throw error;
-  }
-};
+  };
+  
 
 // Satış raporu oluşturan yardımcı metod
 export const generateSalesReport = async (reportSettings) => {
@@ -169,9 +171,7 @@ export const getReportById = async (reportId, userId) => {
       const report = await prisma.report.findFirst({
         where: {
           id: reportId,
-          reportSettings: {
-            userId,
-          },
+          reportSettings: { userId },
         },
         include: {
           reportSettings: true,
@@ -182,45 +182,11 @@ export const getReportById = async (reportId, userId) => {
         throw new Error('Rapor bulunamadı');
       }
   
-      const { reportSettings, content } = report;
-      const reportContent = JSON.parse(content);
-  
-      // Kullanıcı ve rapor tipi bilgilerini kontrol et
-      if (!reportSettings?.userId || !reportSettings?.reportType) {
-        throw new Error('Rapor ayarlarında eksik bilgiler var');
-      }
-  
-      // JSON içerik dosyasına kaydedelim
-      const reportDirectory = path.join(__dirname, '..', 'report_files', 'reports');
-      
-      if (!fs.existsSync(reportDirectory)) {
-        fs.mkdirSync(reportDirectory, { recursive: true });
-      }
-  
-      const reportFileName = `${reportSettings.userId}-${reportSettings.reportType}.json`;
-      const reportFilePath = path.join(reportDirectory, reportFileName);
-  
-      // Dosya zaten varsa, içeriği güncelle
-      let existingContent = [];
-      if (fs.existsSync(reportFilePath)) {
-        const existingData = fs.readFileSync(reportFilePath, 'utf-8');
-        existingContent = JSON.parse(existingData);
-        // Var olan içeriğe yeni veriyi eklemek
-        existingContent.push(reportContent);
-      } else {
-        // Dosya yoksa yeni içerik oluştur
-        existingContent = [reportContent];
-      }
-  
-      // Yeni içerik dosyaya kaydediliyor
-      fs.writeFileSync(reportFilePath, JSON.stringify(existingContent, null, 2));
-  
-      console.log(`Rapor dosyası kaydedildi: ${reportFilePath}`);
-  
       return report;
     } catch (error) {
       console.error('Rapor getirme hatası:', error);
       throw error;
     }
   };
+  
   
