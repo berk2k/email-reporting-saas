@@ -1,9 +1,102 @@
 [
-  
   {
     "period": {
       "startDate": "2025-04-26T11:42:19.581Z",
       "endDate": "2025-04-27T11:42:19.581Z"
+    },
+    "summary": {
+      "totalSales": 300,
+      "itemCount": 2,
+      "averageSale": 150
+    },
+    "paymentMethods": {
+      "Credit Card": 200,
+      "Cash": 100
+    },
+    "topItems": [
+      {
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200
+      },
+      {
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100
+      }
+    ],
+    "allSales": [
+      {
+        "id": 1,
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200,
+        "paymentMethod": "Credit Card",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      },
+      {
+        "id": 2,
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100,
+        "paymentMethod": "Cash",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      }
+    ]
+  },
+  {
+    "period": {
+      "startDate": "2025-04-26T14:12:43.110Z",
+      "endDate": "2025-04-27T14:12:43.110Z"
+    },
+    "summary": {
+      "totalSales": 300,
+      "itemCount": 2,
+      "averageSale": 150
+    },
+    "paymentMethods": {
+      "Credit Card": 200,
+      "Cash": 100
+    },
+    "topItems": [
+      {
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200
+      },
+      {
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100
+      }
+    ],
+    "allSales": [
+      {
+        "id": 1,
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200,
+        "paymentMethod": "Credit Card",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      },
+      {
+        "id": 2,
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100,
+        "paymentMethod": "Cash",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      }
+    ]
+  },
+  {
+    "period": {
+      "startDate": "2025-04-26T14:16:55.608Z",
+      "endDate": "2025-04-27T14:16:55.608Z"
     },
     "summary": {
       "totalSales": 300,

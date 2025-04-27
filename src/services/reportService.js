@@ -8,50 +8,71 @@ const prisma = new PrismaClient();
 
 
 // Belirli bir rapor ayarına göre rapor oluşturur
-export const generateReport = async (reportSettingsId) => {
-    try {
-      const reportSettings = await prisma.reportSettings.findUnique({
-        where: { id: reportSettingsId },
-        include: { user: true },
-      });
-  
-      if (!reportSettings) {
-        throw new Error('Rapor ayarları bulunamadı');
-      }
-  
-      let reportContent;
-      switch (reportSettings.reportType) {
-        case 'sales':
-          reportContent = await reportService.generateSalesReport(reportSettings);
-          break;
-        default:
-          throw new Error('Desteklenmeyen rapor tipi');
-      }
-  
-      const report = await prisma.report.create({
-        data: {
-          reportSettingsId: reportSettings.id,
-          content: JSON.stringify(reportContent),
-          sent: false,
-        },
-      });
-  
-      // --- JSON dosyasını kaydetme ---
-      await fileService.saveReportToFile(reportSettings.userId, reportSettings.reportType, reportContent);
-  
-      console.log(`Rapor başarıyla kaydedildi.`);
-  
-      await prisma.reportSettings.update({
-        where: { id: reportSettings.id },
-        data: { lastGenerated: new Date() },
-      });
-  
-      return report;
-    } catch (error) {
-      console.error('Rapor oluşturma hatası:', error);
-      throw error;
+export const generateReport = async (reportSettingsId, req) => {
+  try {
+    console.log('Generating report for settings ID:', reportSettingsId);
+    //console.log('User from token:', req.user);
+    
+    const reportSettings = await prisma.reportSettings.findUnique({
+      where: { id: reportSettingsId },
+      include: { user: true },
+    });
+
+    console.log('User relationship:', reportSettings.user);
+
+    console.log('Found report settings:', reportSettings);
+    
+    if (!reportSettings) {
+      throw new Error('Rapor ayarları bulunamadı');
     }
-  };
+
+    console.log('User relationship:', reportSettings.user);
+    console.log('report settings userid:', reportSettings.userId);
+    console.log('req.user:', req.user); // hata veren yer
+
+    
+    
+    if (reportSettings.userId !== req.user.userId) {
+      console.log(`Auth mismatch: report userId=${reportSettings.userId}, token userId=${req.user.userId}`);
+      throw new Error('Yetkisiz erişim. Bu raporu oluşturma yetkiniz yok.');
+    }
+    
+
+    let reportContent;
+    switch (reportSettings.reportType) {
+      case 'sales':
+        reportContent = await reportService.generateSalesReport(reportSettings);
+        break;
+      default:
+        throw new Error('Desteklenmeyen rapor tipi');
+    }
+    console.log("deneme2")
+    
+    const report = await prisma.report.create({
+      data: {
+        reportSettingsId: reportSettings.id,
+        content: JSON.stringify(reportContent),
+        sent: false,
+      },
+    });
+    
+    
+    // JSON dosyasını kaydetme
+    await fileService.saveReportToFile(reportSettings.userId, reportSettings.reportType, reportContent);
+  
+    console.log(`Rapor başarıyla kaydedildi.`);
+    
+    await prisma.reportSettings.update({
+      where: { id: reportSettings.id },
+      data: { lastGenerated: new Date() },
+    });
+    
+    return report;
+  } catch (error) {
+    console.error('Rapor oluşturma hatası:', error);
+    throw error;
+  }
+};
   
 
 // Satış raporu oluşturan yardımcı metod
@@ -132,6 +153,7 @@ export const generateSalesReport = async (reportSettings) => {
   };
 };
 
+
 // Kullanıcının tüm raporlarını getirir
 export const getUserReports = async (userId) => {
   return prisma.report.findMany({
@@ -151,27 +173,32 @@ export const getUserReports = async (userId) => {
 
 // Belirli bir raporu ID'ye göre getirir
 
-export const getReportById = async (reportId, userId) => {
-    try {
-      const report = await prisma.report.findFirst({
-        where: {
-          id: reportId,
-          reportSettings: { userId },
+export const getReportById = async (reportId, req) => {
+  try {
+
+
+    const report = await prisma.report.findFirst({
+      where: {
+        id: reportId,
+        reportSettings: {
+          userId: req.user.userId,  // Burada doğru ilişki kontrolü yapılmalı
         },
-        include: {
-          reportSettings: true,
-        },
-      });
-  
-      if (!report) {
-        throw new Error('Rapor bulunamadı');
-      }
-  
-      return report;
-    } catch (error) {
-      console.error('Rapor getirme hatası:', error);
-      throw error;
+      },
+      include: {
+        reportSettings: true,
+      },
+    });
+
+    if (!report) {
+      throw new Error(`Rapor bulunamadı`);
     }
-  };
+    
+    return report;
+  } catch (error) {
+    console.error('Rapor getirme hatası:', error.message);
+    throw new Error('Rapor getirilirken bir hata oluştu: ' + error.message);
+  }
+};
+
   
   

@@ -43,7 +43,6 @@ model ReportSettings {
   reportType    String   // e.g., "sales", "inventory"
   frequency     String   // e.g., "daily", "weekly", "monthly"
   lastGenerated DateTime @default(now())
-  
   user          User     @relation(fields: [userId], references: [id])
   reports       Report[] // Yeni ilişki ekliyoruz
   

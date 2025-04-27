@@ -8,11 +8,13 @@ export const generateReport = async (req, res) => {
   try {
     const { reportSettingsId } = req.body;
 
+    //console.log('generateReport içindeki req.user:', req.user);
+    //console.log('req.body:', req.body);
     // Kullanıcının kendi rapor ayarı olduğunu doğrulayalım
     const reportSettings = await prisma.reportSettings.findFirst({
       where: {
         id: reportSettingsId,
-        userId: req.user.id, // Kullanıcının doğrulaması
+        userId: req.user.userId, // Kullanıcının doğrulaması
       },
     });
 
@@ -21,7 +23,7 @@ export const generateReport = async (req, res) => {
     }
 
     // ReportService'den rapor oluşturma işlemini çağırıyoruz
-    const report = await reportService.generateReport(reportSettingsId);
+    const report = await reportService.generateReport(reportSettingsId,req);
 
     res.status(201).json({
       message: 'Rapor başarıyla oluşturuldu',
@@ -36,7 +38,7 @@ export const generateReport = async (req, res) => {
 // Kullanıcının tüm raporlarını listeleme
 export const getUserReports = async (req, res) => {
   try {
-    const reports = await reportService.getUserReports(req.user.id);
+    const reports = await reportService.getUserReports(req.user.userId);
     res.status(200).json(reports);
   } catch (error) {
     console.error('Raporları getirme hatası:', error);
@@ -50,7 +52,7 @@ export const getReport = async (req, res) => {
     const { reportId } = req.params;
     
     // Raporu getirme işlemi
-    const report = await reportService.getReportById(parseInt(reportId), req.user.id);
+    const report = await reportService.getReportById(parseInt(reportId), req);
 
     if (!report) {
       return res.status(404).json({ message: 'Rapor bulunamadı' });
@@ -66,7 +68,15 @@ export const getReport = async (req, res) => {
       content: reportContent,
     });
   } catch (error) {
-    console.error('Rapor getirme hatası:', error);
+    // Daha detaylı hata mesajı ile loglama
+    console.error('Rapor getirme hatası:', error.message);
+    
+    if (error.message.includes('Rapor bulunamadı')) {
+      return res.status(404).json({ message: error.message });
+    }
+
+    // Genel hata mesajı
     res.status(500).json({ message: 'Rapor getirilirken bir hata oluştu' });
   }
 };
+
