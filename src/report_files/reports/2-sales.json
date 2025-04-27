@@ -1,72 +1,49 @@
 [
+  
   {
     "period": {
-      "startDate": "2025-04-20T10:31:27.098Z",
-      "endDate": "2025-04-27T10:31:27.098Z"
+      "startDate": "2025-04-20T11:43:15.439Z",
+      "endDate": "2025-04-27T11:43:15.439Z"
     },
     "summary": {
-      "totalSales": 370,
-      "itemCount": 4,
-      "averageSale": 92.5
+      "totalSales": 800,
+      "itemCount": 2,
+      "averageSale": 400
     },
     "paymentMethods": {
-      "Cash": 160,
-      "Card": 210
+      "Credit Card": 500,
+      "Cash": 300
     },
     "topItems": [
       {
-        "item": "Latte",
-        "quantity": 40,
-        "total": 120
+        "item": "Ürün C",
+        "quantity": 5,
+        "total": 500
       },
       {
-        "item": "Coffee",
-        "quantity": 50,
-        "total": 100
-      },
-      {
-        "item": "Espresso",
-        "quantity": 30,
-        "total": 90
-      },
-      {
-        "item": "Sandwich",
-        "quantity": 20,
-        "total": 60
+        "item": "Ürün D",
+        "quantity": 3,
+        "total": 300
       }
     ],
     "allSales": [
       {
-        "id": 1,
-        "item": "Coffee",
-        "quantity": 50,
-        "total": 100,
-        "timestamp": "2025-04-25T10:31:25.077Z",
-        "paymentMethod": "Cash"
-      },
-      {
-        "id": 2,
-        "item": "Espresso",
-        "quantity": 30,
-        "total": 90,
-        "timestamp": "2025-04-25T10:31:25.093Z",
-        "paymentMethod": "Card"
-      },
-      {
         "id": 3,
-        "item": "Sandwich",
-        "quantity": 20,
-        "total": 60,
-        "timestamp": "2025-04-25T10:31:25.097Z",
-        "paymentMethod": "Cash"
+        "item": "Ürün C",
+        "quantity": 5,
+        "total": 500,
+        "paymentMethod": "Credit Card",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 2
       },
       {
         "id": 4,
-        "item": "Latte",
-        "quantity": 40,
-        "total": 120,
-        "timestamp": "2025-04-25T10:31:25.100Z",
-        "paymentMethod": "Card"
+        "item": "Ürün D",
+        "quantity": 3,
+        "total": 300,
+        "paymentMethod": "Cash",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 2
       }
     ]
   }

@@ -16,6 +16,7 @@ async function main() {
 const salesData = [
   {
     item: 'Coffee',
+    userId:1,
     quantity: 50,
     total: 100.0,
     paymentMethod: 'Cash',
@@ -23,18 +24,21 @@ const salesData = [
   {
     item: 'Espresso',
     quantity: 30,
+    userId:2,
     total: 90.0,
     paymentMethod: 'Card',
   },
   {
     item: 'Sandwich',
     quantity: 20,
+    userId:1,
     total: 60.0,
     paymentMethod: 'Cash',
   },
   {
     item: 'Latte',
     quantity: 40,
+    userId:1,
     total: 120.0,
     paymentMethod: 'Card',
   },
@@ -42,7 +46,7 @@ const salesData = [
 
 // Add sales data to the database
 for (const sale of salesData) {
-  await prisma.sales.create({
+  await prisma.Sales.create({
     data: sale,
   });
 }

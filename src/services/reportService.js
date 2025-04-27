@@ -1,14 +1,11 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+
 import { PrismaClient } from '@prisma/client';
 import * as reportService from '../services/reportService.js';
+import * as fileService from '../services/fileService.js';
 
 
 const prisma = new PrismaClient();
 
-// __dirname için çözüm (ES6 modül kullanımı)
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Belirli bir rapor ayarına göre rapor oluşturur
 export const generateReport = async (reportSettingsId) => {
@@ -39,23 +36,10 @@ export const generateReport = async (reportSettingsId) => {
         },
       });
   
-      // JSON dosyasını kaydetme
-      const reportDirectory = path.join(__dirname, '..', 'report_files', 'reports');
-      fs.mkdirSync(reportDirectory, { recursive: true });
+      // --- JSON dosyasını kaydetme ---
+      await fileService.saveReportToFile(reportSettings.userId, reportSettings.reportType, reportContent);
   
-      const reportFileName = `${reportSettings.userId}-${reportSettings.reportType}.json`;
-      const reportFilePath = path.join(reportDirectory, reportFileName);
-  
-      let existingContent = [];
-      if (fs.existsSync(reportFilePath)) {
-        const existingData = fs.readFileSync(reportFilePath, 'utf-8');
-        existingContent = JSON.parse(existingData);
-      }
-      existingContent.push(reportContent);
-  
-      fs.writeFileSync(reportFilePath, JSON.stringify(existingContent, null, 2));
-  
-      console.log(`Rapor dosyası kaydedildi: ${reportFilePath}`);
+      console.log(`Rapor başarıyla kaydedildi.`);
   
       await prisma.reportSettings.update({
         where: { id: reportSettings.id },
@@ -93,6 +77,7 @@ export const generateSalesReport = async (reportSettings) => {
   // Satış verilerini çekelim
   const salesData = await prisma.sales.findMany({
     where: {
+      userId: reportSettings.userId,
       timestamp: {
         gte: startDate,
         lte: endDate,

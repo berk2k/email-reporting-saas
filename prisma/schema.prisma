@@ -20,6 +20,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())  // Set default value for new rows
   reportSettings ReportSettings[]  // A user can have multiple report settings
+  sales         Sales[]  // <<< Burası eklendi
 }
 
 model Sales {
@@ -27,9 +28,14 @@ model Sales {
   item          String
   quantity      Int
   total         Float
-  timestamp     DateTime @default(now())
   paymentMethod String
+  timestamp     DateTime @default(now())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@map("Sales") // <-- Burayı ekledim!
 }
+
 
 model ReportSettings {
   id            Int      @id @default(autoincrement())
