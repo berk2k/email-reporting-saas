@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config.js';
+import prisma from '../models/prisma.js';
 
-const authMiddleware = (req, res, next) => {
+export const authMiddleware = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
   if (!token) {
@@ -12,10 +13,8 @@ const authMiddleware = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
 
-    // Kullanıcı bilgileri doğrulandıktan sonra req.user’a ekleniyor
     req.user = decoded;
 
-    // Token’ın geçerliliğini kontrol et
     if (!req.user || !req.user.userId) {
       return res.status(401).json({ message: 'Invalid user data in token.' });
     }
@@ -39,4 +38,44 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-export default authMiddleware;
+// export const verifyOwnership = (resourceType) => async (req, res, next) => {
+//   const resourceId = req.params.id || req.body?.id;
+  
+//   if (!resourceId) {
+//     return res.status(400).json({ message: `${resourceType} id belirtilmedi.` });
+//   }
+
+//   const tokenUserId = req.user.userId;
+//   try {
+//     let resource;
+    
+//     switch (resourceType) {
+//       case 'reportSettings':
+//         resource = await prisma.reportSettings.findUnique({
+//           where: { id: parseInt(resourceId) },
+//         });
+//         break;
+//       case 'report':
+//         resource = await prisma.report.findUnique({
+//           where: { id: parseInt(resourceId) },
+//         });
+//         break;
+//       // Diğer kaynak türleri için de case'ler eklenebilir
+//       default:
+//         return res.status(400).json({ message: 'Geçersiz kaynak türü.' });
+//     }
+
+//     if (!resource || resource.userId !== tokenUserId) {
+//       return res.status(403).json({ message: `Bu ${resourceType} kaynağına erişim izniniz yok.` });
+//     }
+
+//     req[resourceType] = resource; // Controller'da kullanılacak
+//     next();
+//   } catch (error) {
+//     console.error('Ownership error:', error);
+//     return res.status(500).json({ message: 'Erişim kontrolü sırasında bir hata oluştu.' });
+//   }
+// };
+
+
+

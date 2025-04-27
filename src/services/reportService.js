@@ -8,35 +8,16 @@ const prisma = new PrismaClient();
 
 
 // Belirli bir rapor ayarına göre rapor oluşturur
-export const generateReport = async (reportSettingsId, req) => {
+export const generateReport = async (reportSettingsId) => {
   try {
-    console.log('Generating report for settings ID:', reportSettingsId);
-    //console.log('User from token:', req.user);
-    
     const reportSettings = await prisma.reportSettings.findUnique({
       where: { id: reportSettingsId },
       include: { user: true },
     });
 
-    console.log('User relationship:', reportSettings.user);
-
-    console.log('Found report settings:', reportSettings);
-    
     if (!reportSettings) {
       throw new Error('Rapor ayarları bulunamadı');
     }
-
-    console.log('User relationship:', reportSettings.user);
-    console.log('report settings userid:', reportSettings.userId);
-    console.log('req.user:', req.user); // hata veren yer
-
-    
-    
-    if (reportSettings.userId !== req.user.userId) {
-      console.log(`Auth mismatch: report userId=${reportSettings.userId}, token userId=${req.user.userId}`);
-      throw new Error('Yetkisiz erişim. Bu raporu oluşturma yetkiniz yok.');
-    }
-    
 
     let reportContent;
     switch (reportSettings.reportType) {
@@ -46,8 +27,7 @@ export const generateReport = async (reportSettingsId, req) => {
       default:
         throw new Error('Desteklenmeyen rapor tipi');
     }
-    console.log("deneme2")
-    
+
     const report = await prisma.report.create({
       data: {
         reportSettingsId: reportSettings.id,
@@ -55,29 +35,26 @@ export const generateReport = async (reportSettingsId, req) => {
         sent: false,
       },
     });
-    
-    
-    // JSON dosyasını kaydetme
+
     await fileService.saveReportToFile(reportSettings.userId, reportSettings.reportType, reportContent);
-  
-    console.log(`Rapor başarıyla kaydedildi.`);
-    
+
     await prisma.reportSettings.update({
       where: { id: reportSettings.id },
       data: { lastGenerated: new Date() },
     });
-    
+
     return report;
   } catch (error) {
     console.error('Rapor oluşturma hatası:', error);
     throw error;
   }
 };
+
   
 
 // Satış raporu oluşturan yardımcı metod
 export const generateSalesReport = async (reportSettings) => {
-  // Frequency değerine göre tarih aralığını belirleyelim
+  // Frequency değerine göre tarih aralığı
   const endDate = new Date();
   let startDate = new Date();
 
@@ -95,7 +72,7 @@ export const generateSalesReport = async (reportSettings) => {
       startDate.setDate(endDate.getDate() - 1); // Varsayılan olarak günlük
   }
 
-  // Satış verilerini çekelim
+  // Satış verileri
   const salesData = await prisma.sales.findMany({
     where: {
       userId: reportSettings.userId,
@@ -106,11 +83,11 @@ export const generateSalesReport = async (reportSettings) => {
     },
   });
 
-  // Rapor özeti için bazı hesaplamalar yapalım
+  // Rapor özeti için bazı hesaplamalar
   const totalSales = salesData.reduce((sum, sale) => sum + sale.total, 0);
   const itemCount = salesData.length;
 
-  // Ödeme metotlarına göre gruplama yapalım
+  // Ödeme metotlarına göre gruplama
   const paymentMethods = {};
   salesData.forEach((sale) => {
     if (!paymentMethods[sale.paymentMethod]) {
@@ -129,7 +106,7 @@ export const generateSalesReport = async (reportSettings) => {
     itemSales[sale.item].total += sale.total;
   });
 
-  // Sonuçları döndürelim
+  // Sonuçlar
   return {
     period: {
       startDate,
@@ -173,14 +150,11 @@ export const getUserReports = async (userId) => {
 
 // Belirli bir raporu ID'ye göre getirir
 
-export const getReportById = async (reportId, req) => {
+export const getReportById = async (reportId) => {
   try {
     const report = await prisma.report.findFirst({
       where: {
         id: reportId,
-        reportSettings: {
-          userId: req.user.userId,  // Kullanıcının erişim izni kontrolü
-        },
       },
       include: {
         reportSettings: true,
@@ -188,7 +162,7 @@ export const getReportById = async (reportId, req) => {
     });
 
     if (!report) {
-      throw new Error('Rapor bulunamadı'); // Hata mesajı, sadece backend için
+      throw new Error('Rapor bulunamadı');
     }
 
     return report;
@@ -197,6 +171,7 @@ export const getReportById = async (reportId, req) => {
     throw new Error('Rapor getirilirken bir hata oluştu: ' + error.message);
   }
 };
+
 
   
   

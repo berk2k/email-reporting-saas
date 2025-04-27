@@ -139,5 +139,193 @@
         "userId": 1
       }
     ]
+  },
+  {
+    "period": {
+      "startDate": "2025-04-26T16:55:58.262Z",
+      "endDate": "2025-04-27T16:55:58.262Z"
+    },
+    "summary": {
+      "totalSales": 300,
+      "itemCount": 2,
+      "averageSale": 150
+    },
+    "paymentMethods": {
+      "Credit Card": 200,
+      "Cash": 100
+    },
+    "topItems": [
+      {
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200
+      },
+      {
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100
+      }
+    ],
+    "allSales": [
+      {
+        "id": 1,
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200,
+        "paymentMethod": "Credit Card",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      },
+      {
+        "id": 2,
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100,
+        "paymentMethod": "Cash",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      }
+    ]
+  },
+  {
+    "period": {
+      "startDate": "2025-04-26T17:18:37.514Z",
+      "endDate": "2025-04-27T17:18:37.514Z"
+    },
+    "summary": {
+      "totalSales": 300,
+      "itemCount": 2,
+      "averageSale": 150
+    },
+    "paymentMethods": {
+      "Credit Card": 200,
+      "Cash": 100
+    },
+    "topItems": [
+      {
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200
+      },
+      {
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100
+      }
+    ],
+    "allSales": [
+      {
+        "id": 1,
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200,
+        "paymentMethod": "Credit Card",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      },
+      {
+        "id": 2,
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100,
+        "paymentMethod": "Cash",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      }
+    ]
+  },
+  {
+    "period": {
+      "startDate": "2025-04-26T17:21:01.245Z",
+      "endDate": "2025-04-27T17:21:01.245Z"
+    },
+    "summary": {
+      "totalSales": 300,
+      "itemCount": 2,
+      "averageSale": 150
+    },
+    "paymentMethods": {
+      "Credit Card": 200,
+      "Cash": 100
+    },
+    "topItems": [
+      {
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200
+      },
+      {
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100
+      }
+    ],
+    "allSales": [
+      {
+        "id": 1,
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200,
+        "paymentMethod": "Credit Card",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      },
+      {
+        "id": 2,
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100,
+        "paymentMethod": "Cash",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      }
+    ]
+  },
+  {
+    "period": {
+      "startDate": "2025-04-26T17:43:40.501Z",
+      "endDate": "2025-04-27T17:43:40.501Z"
+    },
+    "summary": {
+      "totalSales": 300,
+      "itemCount": 2,
+      "averageSale": 150
+    },
+    "paymentMethods": {
+      "Credit Card": 200,
+      "Cash": 100
+    },
+    "topItems": [
+      {
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200
+      },
+      {
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100
+      }
+    ],
+    "allSales": [
+      {
+        "id": 1,
+        "item": "Ürün A",
+        "quantity": 2,
+        "total": 200,
+        "paymentMethod": "Credit Card",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      },
+      {
+        "id": 2,
+        "item": "Ürün B",
+        "quantity": 1,
+        "total": 100,
+        "paymentMethod": "Cash",
+        "timestamp": "2025-04-27T11:40:56.059Z",
+        "userId": 1
+      }
+    ]
   }
 ]

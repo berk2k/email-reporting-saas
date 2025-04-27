@@ -5,13 +5,16 @@ import {
     getReport,
     getUserReports
   } from '../controllers/reportController.js';
-  import authMiddleware from '../middlewares/authMiddleware.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
+//import { authMiddleware, verifyOwnership } from '../middlewares/authMiddleware.js';
+
 
 const router = express.Router();
 
 
 // Tüm rota işlemlerinde authentication gerekiyor
 router.use(authMiddleware);
+//router.use(verifyOwnership)
 
 /**
  * @swagger
@@ -58,7 +61,8 @@ router.use(authMiddleware);
  *       500:
  *         description: Internal server error
  */
-router.post('/generate', generateReport);
+router.post('/generate',generateReport);
+//verifyOwnership("reportSettings")
 
 /**
  * @swagger
@@ -148,7 +152,8 @@ router.get('/', getUserReports);
  *       500:
  *         description: Internal server error
  */
-router.get('/:reportId', getReport);
+router.get('/:reportId',getReport);
+//verifyOwnership("report")
 
 
 
