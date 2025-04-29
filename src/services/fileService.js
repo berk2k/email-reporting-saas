@@ -6,14 +6,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const reportDirectory = path.join(__dirname, '..', 'report_files', 'reports');
 
-// Klasör var mı kontrol et, yoksa oluştur
+
 export const ensureReportDirectoryExists = () => {
   if (!fs.existsSync(reportDirectory)) {
     fs.mkdirSync(reportDirectory, { recursive: true });
   }
 };
 
-// Rapor dosyasına ekleme veya oluşturma
+
 export const saveReportToFile = (userId, reportType, reportContent) => {
   ensureReportDirectoryExists();
 
@@ -30,10 +30,10 @@ export const saveReportToFile = (userId, reportType, reportContent) => {
 
   fs.writeFileSync(reportFilePath, JSON.stringify(existingContent, null, 2));
 
-  console.log(`Rapor dosyası kaydedildi: ${reportFilePath}`);
+  console.log(`report file saved: ${reportFilePath}`);
 };
 
-// Bir rapor dosyasını oku (varsa)
+
 export const readReportFile = (userId, reportType) => {
   const reportFileName = `${userId}-${reportType}.json`;
   const reportFilePath = path.join(reportDirectory, reportFileName);

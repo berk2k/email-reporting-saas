@@ -7,7 +7,7 @@ import * as fileService from '../services/fileService.js';
 const prisma = new PrismaClient();
 
 
-// Belirli bir rapor ayarına göre rapor oluşturur
+
 export const generateReport = async (reportSettingsId) => {
   try {
     const reportSettings = await prisma.reportSettings.findUnique({
@@ -16,7 +16,7 @@ export const generateReport = async (reportSettingsId) => {
     });
 
     if (!reportSettings) {
-      throw new Error('Rapor ayarları bulunamadı');
+      throw new Error('Rapor settings error');
     }
 
     let reportContent;
@@ -25,7 +25,7 @@ export const generateReport = async (reportSettingsId) => {
         reportContent = await reportService.generateSalesReport(reportSettings);
         break;
       default:
-        throw new Error('Desteklenmeyen rapor tipi');
+        throw new Error('Unsupported report type');
     }
 
     const report = await prisma.report.create({
@@ -45,16 +45,16 @@ export const generateReport = async (reportSettingsId) => {
 
     return report;
   } catch (error) {
-    console.error('Rapor oluşturma hatası:', error);
+    console.error('Creating report error:', error);
     throw error;
   }
 };
 
   
 
-// Satış raporu oluşturan yardımcı metod
+
 export const generateSalesReport = async (reportSettings) => {
-  // Frequency değerine göre tarih aralığı
+
   const endDate = new Date();
   let startDate = new Date();
 
@@ -69,10 +69,10 @@ export const generateSalesReport = async (reportSettings) => {
       startDate.setMonth(endDate.getMonth() - 1);
       break;
     default:
-      startDate.setDate(endDate.getDate() - 1); // Varsayılan olarak günlük
+      startDate.setDate(endDate.getDate() - 1);
   }
 
-  // Satış verileri
+
   const salesData = await prisma.sales.findMany({
     where: {
       userId: reportSettings.userId,
@@ -83,11 +83,11 @@ export const generateSalesReport = async (reportSettings) => {
     },
   });
 
-  // Rapor özeti için bazı hesaplamalar
+
   const totalSales = salesData.reduce((sum, sale) => sum + sale.total, 0);
   const itemCount = salesData.length;
 
-  // Ödeme metotlarına göre gruplama
+
   const paymentMethods = {};
   salesData.forEach((sale) => {
     if (!paymentMethods[sale.paymentMethod]) {
@@ -96,7 +96,7 @@ export const generateSalesReport = async (reportSettings) => {
     paymentMethods[sale.paymentMethod] += sale.total;
   });
 
-  // En çok satılan ürünleri bulalım
+ 
   const itemSales = {};
   salesData.forEach((sale) => {
     if (!itemSales[sale.item]) {
@@ -106,7 +106,7 @@ export const generateSalesReport = async (reportSettings) => {
     itemSales[sale.item].total += sale.total;
   });
 
-  // Sonuçlar
+
   return {
     period: {
       startDate,

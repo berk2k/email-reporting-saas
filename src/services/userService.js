@@ -1,15 +1,10 @@
-// src/services/userService.js
+
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config.js';
 
+import prisma from '../models/prisma.js'; 
 
-import prisma from '../models/prisma.js'; // Now this is the full Prisma client
-
-
-
-
-// Register user and hash password
 export const registerUserService = async (email, password) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -17,16 +12,16 @@ export const registerUserService = async (email, password) => {
         const user = await prisma.user.create({
             data: {
                 email,
-                password: hashedPassword, // Save hashed password
+                password: hashedPassword, 
             },
         });
-        return user; // Return the created user object
+        return user; 
     } catch (error) {
         throw new Error('Error creating user: ' + error.message);
     }
 };
 
-// Login user and generate JWT
+
 export const loginUserService = async (email, password) => {
     const user = await prisma.user.findUnique({
         where: {
@@ -45,5 +40,5 @@ export const loginUserService = async (email, password) => {
 
     // Generate JWT token using secret from environment variable
     const token = jwt.sign({ userId: user.id }, config.jwtSecret, { expiresIn: '1h' });
-    return token;  // Return the JWT token
+    return token; 
 };
