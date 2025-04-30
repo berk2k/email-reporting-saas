@@ -45,6 +45,7 @@ model ReportSettings {
   lastGenerated DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id])
   reports       Report[] // Yeni ilişki ekliyoruz
+  scheduledReports ScheduledReport[]
   
   @@unique([userId, reportType, frequency])
 }
@@ -58,6 +59,24 @@ model Report {
   
   reportSettings ReportSettings @relation(fields: [reportSettingsId], references: [id])
 }
+
+model ScheduledReport {
+  id              Int             @id @default(autoincrement())
+
+  reportSettingsId Int
+
+  startDate       DateTime        // İlk raporun ne zaman başlatılacağı
+  nextRun         DateTime        // Bir sonraki oluşturulma zamanı
+  isActive        Boolean         @default(true)
+  lastRun         DateTime?       // En son ne zaman çalıştığı
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  reportSettings  ReportSettings  @relation(fields: [reportSettingsId], references: [id])
+
+
+}
+
 
 
 
