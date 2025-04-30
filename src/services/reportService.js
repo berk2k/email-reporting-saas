@@ -1,7 +1,9 @@
 
 import { PrismaClient } from '@prisma/client';
-import * as reportService from '../services/reportService.js';
 import * as fileService from '../services/fileService.js';
+import { sendEmail } from '../services/emailService.js';
+
+
 
 
 const prisma = new PrismaClient();
@@ -22,7 +24,7 @@ export const generateReport = async (reportSettingsId) => {
     let reportContent;
     switch (reportSettings.reportType) {
       case 'sales':
-        reportContent = await reportService.generateSalesReport(reportSettings);
+        reportContent = await generateSalesReport(reportSettings);
         break;
       default:
         throw new Error('Unsupported report type');
@@ -36,7 +38,19 @@ export const generateReport = async (reportSettingsId) => {
       },
     });
 
-    await fileService.saveReportToFile(reportSettings.userId, reportSettings.reportType, reportContent);
+    const filePath = await fileService.saveReportToFile(reportSettings.userId, reportSettings.reportType, reportContent);
+    await sendEmail(
+      reportSettings.user.email,
+      'Your Report is Ready',
+      'You can find your report attached.',
+      '<p>You can find your report attached.</p>',
+      [
+        {
+          filename: `${reportSettings.reportType}-report.json`,
+          path: filePath,
+        },
+      ]
+    );
 
     await prisma.reportSettings.update({
       where: { id: reportSettings.id },
@@ -131,7 +145,7 @@ export const generateSalesReport = async (reportSettings) => {
 };
 
 
-// Kullanıcının tüm raporlarını getirir
+
 export const getUserReports = async (userId) => {
   return prisma.report.findMany({
     where: {
@@ -148,7 +162,7 @@ export const getUserReports = async (userId) => {
   });
 };
 
-// Belirli bir raporu ID'ye göre getirir
+
 
 export const getReportById = async (reportId) => {
   try {
@@ -162,13 +176,13 @@ export const getReportById = async (reportId) => {
     });
 
     if (!report) {
-      throw new Error('Rapor bulunamadı');
+      throw new Error('Report not found');
     }
 
     return report;
   } catch (error) {
-    console.error('Rapor getirme hatası:', error.message);
-    throw new Error('Rapor getirilirken bir hata oluştu: ' + error.message);
+    console.error('fetching report error:', error.message);
+    throw new Error('error occured: ' + error.message);
   }
 };
 

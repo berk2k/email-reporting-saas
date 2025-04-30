@@ -31,6 +31,7 @@ export const saveReportToFile = (userId, reportType, reportContent) => {
   fs.writeFileSync(reportFilePath, JSON.stringify(existingContent, null, 2));
 
   console.log(`report file saved: ${reportFilePath}`);
+  return reportFilePath; 
 };
 
 

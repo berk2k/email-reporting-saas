@@ -9,7 +9,15 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendEmail = async (to, subject, text, html) => {
+/**
+ * 
+ * @param {string} to - Alıcı email adresi
+ * @param {string} subject - Email başlığı
+ * @param {string} text - Düz metin içeriği
+ * @param {string} html - HTML içeriği
+ * @param {Array} attachments - Eklenecek dosyalar [{ filename, path }]
+ */
+export const sendEmail = async (to, subject, text, html,attachments = []) => {
     try {
       const mailOptions = {
         from: config.emailUser,
@@ -17,6 +25,7 @@ export const sendEmail = async (to, subject, text, html) => {
         subject,
         text,
         html,
+        attachments,
       };
   
       

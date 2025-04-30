@@ -1,0 +1,30 @@
+[
+  {
+    "period": {
+      "startDate": "2025-04-23T13:12:32.004Z",
+      "endDate": "2025-04-30T13:12:32.004Z"
+    },
+    "summary": {
+      "totalSales": 0,
+      "itemCount": 0,
+      "averageSale": 0
+    },
+    "paymentMethods": {},
+    "topItems": [],
+    "allSales": []
+  },
+  {
+    "period": {
+      "startDate": "2025-04-23T13:32:47.827Z",
+      "endDate": "2025-04-30T13:32:47.827Z"
+    },
+    "summary": {
+      "totalSales": 0,
+      "itemCount": 0,
+      "averageSale": 0
+    },
+    "paymentMethods": {},
+    "topItems": [],
+    "allSales": []
+  }
+]
