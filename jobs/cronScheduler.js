@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { generateReport } from '../services/reportService.js';
+import { generateReport,calculateNextRun } from '../services/reportService.js';
 import { prisma } from '../prismaClient';
 
 

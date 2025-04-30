@@ -214,8 +214,8 @@ export const getReportById = async (reportId) => {
 
 
 
-export const calculateNextRun = (reportSettings, startDate) => {
-  const baseDate = new Date(startDate);
+export const calculateNextRun = (reportSettings) => {
+  const baseDate = new Date(reportSettings.startDate);
   switch (reportSettings.frequency) {
     case 'daily':
       return new Date(baseDate.setDate(baseDate.getDate() + 1));
