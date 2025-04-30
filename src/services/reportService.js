@@ -8,6 +8,31 @@ import { sendEmail } from '../services/emailService.js';
 
 const prisma = new PrismaClient();
 
+export const createScheduledReport = async (reportSettings) => {
+  try {
+    
+    const startDate = reportSettings.startDate;
+
+    // NextRun'ı hesapla
+    const nextRun = calculateNextRun(reportSettings);
+
+    
+    const scheduledReport = await prisma.scheduledReport.create({
+      data: {
+        reportSettingsId: reportSettings.id,
+        startDate: startDate, 
+        nextRun: nextRun,
+      },
+    });
+
+    console.log('Scheduled Report created:', scheduledReport);
+    return scheduledReport;
+  } catch (error) {
+    console.error('Error creating scheduled report:', error);
+    throw error;
+  }
+};
+
 
 
 export const generateReport = async (reportSettingsId) => {
@@ -185,6 +210,24 @@ export const getReportById = async (reportId) => {
     throw new Error('error occured: ' + error.message);
   }
 };
+
+
+
+
+export const calculateNextRun = (reportSettings, startDate) => {
+  const baseDate = new Date(startDate);
+  switch (reportSettings.frequency) {
+    case 'daily':
+      return new Date(baseDate.setDate(baseDate.getDate() + 1));
+    case 'weekly':
+      return new Date(baseDate.setDate(baseDate.getDate() + 7));
+    case 'monthly':
+      return new Date(baseDate.setMonth(baseDate.getMonth() + 1));
+    default:
+      return baseDate; 
+  }
+};
+
 
 
   

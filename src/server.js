@@ -18,7 +18,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/auth', authRoutes);
 app.use('/api/settings', reportSettingRoutes);
 app.use('/api/reports',reportRoutes);
-app.use('/api/email',mailRoutes)
+app.use('/api/email',mailRoutes);
+
 
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');

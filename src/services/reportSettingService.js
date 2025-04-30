@@ -1,6 +1,6 @@
 import prisma from '../models/prisma.js';
 
-export const createOrUpdateReportSetting = async (userId, reportType, frequency) => {
+export const createOrUpdateReportSetting = async (userId, reportType, frequency, startDate) => {
   try {
     
     const existingSetting = await prisma.reportSettings.findUnique({
@@ -25,6 +25,7 @@ export const createOrUpdateReportSetting = async (userId, reportType, frequency)
         userId,
         reportType,
         frequency,
+        startDate: startDate || new Date(),
       },
     });
 

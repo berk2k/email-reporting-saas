@@ -2,9 +2,9 @@ import { createOrUpdateReportSetting, getAllReportSettings, updateReportSetting,
 
 
 export const createOrUpdateReportSettingController = async (req, res) => {
-  const { userId, reportType, frequency } = req.body;
+  const { userId, reportType, frequency, startDate } = req.body;
   try {
-    const result = await createOrUpdateReportSetting(userId, reportType, frequency);
+    const result = await createOrUpdateReportSetting(userId, reportType, frequency, startDate);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });

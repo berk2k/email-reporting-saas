@@ -25,7 +25,8 @@ const router = express.Router();
  * /settings/report-settings:
  *   post:
  *     summary: Create or Update a report setting
- *     description: Creates a new report setting or updates an existing one based on user ID, report type, and frequency.
+ *     description: Creates a new report setting or updates an existing one based on user ID, report type, frequency, and start date.
+ *     tags: [ReportSetting]
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -41,16 +42,21 @@ const router = express.Router();
  *                 type: string
  *               frequency:
  *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
  *             required:
  *               - userId
  *               - reportType
  *               - frequency
+ *               - startDate
  *     responses:
  *       200:
  *         description: Report setting created or updated successfully.
  *       500:
  *         description: Internal server error.
  */
+
 router.post('/report-settings', authMiddleware, createOrUpdateReportSettingController);
 
 /**
@@ -59,6 +65,7 @@ router.post('/report-settings', authMiddleware, createOrUpdateReportSettingContr
  *   get:
  *     summary: Get all report settings for a user
  *     description: Retrieves all report settings associated with the specified user ID.
+ *     tags: [ReportSetting]
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -84,6 +91,7 @@ router.get('/report-settings/:userId', authMiddleware, getAllReportSettingsContr
  *   put:
  *     summary: Update a specific report setting
  *     description: Updates an existing report setting's frequency for a specific user.
+ *     tags: [ReportSetting]
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -125,6 +133,7 @@ router.put('/report-settings/:userId/:reportType/:frequency', authMiddleware, up
  *   delete:
  *     summary: Delete a report setting
  *     description: Deletes a specific report setting for a user.
+ *     tags: [ReportSetting]
  *     security:
  *       - BearerAuth: []
  *     parameters:

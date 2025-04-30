@@ -6,6 +6,7 @@ import {
     getUserReports
   } from '../controllers/reportController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
+import { createScheduledReportController } from '../controllers/scheduledReportController.js';
 //import { authMiddleware, verifyOwnership } from '../middlewares/authMiddleware.js';
 
 
@@ -64,6 +65,39 @@ router.use(authMiddleware);
 router.post('/generate',generateReport);
 //verifyOwnership("reportSettings")
 
+/**
+ * @swagger
+ * /reports/scheduled-report:
+ *   post:
+ *     summary: Create a scheduled report
+ *     description: Creates a scheduled report based on an existing report setting and a specified start date.
+ *     tags: [Reports]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reportSettingsId:
+ *                 type: integer
+ *                 example: 1
+ *               
+ *             required:
+ *               - reportSettingsId
+ *               
+ *     responses:
+ *       200:
+ *         description: Scheduled report created successfully.
+ *       403:
+ *         description: Unauthorized access to the report setting.
+ *       500:
+ *         description: Internal server error.
+ */
+
+router.post('/schedule-report',createScheduledReportController);
 /**
  * @swagger
  * /reports:
@@ -154,6 +188,7 @@ router.get('/', getUserReports);
  */
 router.get('/:reportId',getReport);
 //verifyOwnership("report")
+
 
 
 

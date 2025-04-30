@@ -1,52 +1,48 @@
-// src/jobs/cronScheduler.js
 import cron from 'node-cron';
-import { PrismaClient } from '@prisma/client';
 import { generateReport } from '../services/reportService.js';
+import { prisma } from '../prismaClient';
 
-const prisma = new PrismaClient();
 
-const runScheduledReports = async () => {
-  const now = new Date();
+const scheduleReports = () => {
+  cron.schedule('* * * * *', async () => { 
+    const now = new Date();
 
-  const scheduledReports = await prisma.scheduledReport.findMany({
-    where: {
-      nextRun: {
-        lte: now,
+    
+    const scheduledReports = await prisma.scheduledReport.findMany({
+      where: {
+        nextRun: {
+          lte: now,
+        },
       },
-    },
-    include: {
-      reportSettings: true,
-    },
-  });
+    });
 
-  for (const scheduled of scheduledReports) {
-    try {
-      await generateReport(scheduled.reportSettingsId);
+    
+    for (const scheduledReport of scheduledReports) {
+      try {
+        
+        const reportSettings = await prisma.reportSettings.findUnique({
+          where: { id: scheduledReport.reportSettingsId },
+        });
 
-      let nextRun = new Date(scheduled.nextRun);
-      switch (scheduled.reportSettings.frequency) {
-        case 'daily':
-          nextRun.setDate(nextRun.getDate() + 1);
-          break;
-        case 'weekly':
-          nextRun.setDate(nextRun.getDate() + 7);
-          break;
-        case 'monthly':
-          nextRun.setMonth(nextRun.getMonth() + 1);
-          break;
+        if (reportSettings) {
+          
+          await generateReport(reportSettings.id);
+
+          
+          const nextRun = calculateNextRun(reportSettings);
+
+          
+          await prisma.scheduledReport.update({
+            where: { id: scheduledReport.id },
+            data: { nextRun },
+          });
+        }
+      } catch (error) {
+        console.error('Error processing scheduled report:', error);
       }
-
-      await prisma.scheduledReport.update({
-        where: { id: scheduled.id },
-        data: { nextRun },
-      });
-
-      console.log(`Generated scheduled report for settings ID ${scheduled.reportSettingsId}`);
-    } catch (err) {
-      console.error('Scheduled report error:', err);
     }
-  }
+  });
 };
 
-// run per minute
-cron.schedule('* * * * *', runScheduledReports);
+
+scheduleReports();
