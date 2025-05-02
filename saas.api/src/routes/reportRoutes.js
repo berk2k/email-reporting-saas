@@ -98,47 +98,7 @@ router.post('/generate',generateReport);
  */
 
 router.post('/schedule-report',createScheduledReportController);
-/**
- * @swagger
- * /reports:
- *   get:
- *     summary: Get all user reports
- *     description: Retrieves all reports belonging to the authenticated user
- *     tags: [Reports]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: A list of reports
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   reportSettingsId:
- *                     type: integer
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *                   sent:
- *                     type: boolean
- *                   reportSettings:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       reportType:
- *                         type: string
- *                       frequency:
- *                         type: string
- *       500:
- *         description: Internal server error
- */
-router.get('/', getUserReports);
+
 
 /**
  * @swagger
@@ -187,6 +147,50 @@ router.get('/', getUserReports);
  *         description: Internal server error
  */
 router.get('/:reportId',getReport);
+
+/**
+ * @swagger
+ * /reports/user:
+ *   get:
+ *     summary: Get reports for the logged-in user
+ *     description: Retrieves all reports for the logged-in user based on their authentication token
+ *     tags: [Reports]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of user reports
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   reportSettings:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       reportType:
+ *                         type: string
+ *                       frequency:
+ *                         type: string
+ *                   content:
+ *                     type: object
+ *                     description: The parsed content of the report, the structure depends on the report type
+ *       401:
+ *         description: Unauthorized - User is not authenticated
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/user', getUserReports);
+
 //verifyOwnership("report")
 
 

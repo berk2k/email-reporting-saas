@@ -52,7 +52,8 @@ export const generateReport = async (req, res) => {
 
 export const getUserReports = async (req, res) => {
   try {
-    const reports = await reportService.getUserReports(req.user.userId);
+    const id = req.user.userId;
+    const reports = await reportService.getUserReports(id);
     res.status(200).json(reports);
   } catch (error) {
     console.error('Error fetching reports:', error);
