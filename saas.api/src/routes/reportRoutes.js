@@ -150,10 +150,10 @@ router.get('/:reportId',getReport);
 
 /**
  * @swagger
- * /reports/user:
+ * /reports/user/{userId}:
  *   get:
- *     summary: Get reports for the logged-in user
- *     description: Retrieves all reports for the logged-in user based on their authentication token
+ *     summary: Get reports for a specific user
+ *     description: Retrieves all reports for a user based on the userId provided in the URL
  *     tags: [Reports]
  *     security:
  *       - BearerAuth: []
@@ -186,10 +186,12 @@ router.get('/:reportId',getReport);
  *                     description: The parsed content of the report, the structure depends on the report type
  *       401:
  *         description: Unauthorized - User is not authenticated
+ *       404:
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */
-router.get('/user', getUserReports);
+router.get('/user/:userId', getUserReports);
 
 //verifyOwnership("report")
 
